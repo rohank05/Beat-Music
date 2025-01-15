@@ -1,16 +1,15 @@
 package com.therohankumar
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-fun main() {
-    val name = "Kotlin"
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    println("Hello, " + name + "!")
+import ENV
+import EventListeners
+import modules.CommandManager
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.cache.CacheFlag
 
-    for (i in 1..5) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        println("i = $i")
-    }
+fun main() {
+    CommandManager.registerAllCommand()
+    val jda = JDABuilder.createDefault(ENV.DISCORD_TOKEN).enableIntents(GatewayIntent.GUILD_VOICE_STATES).enableCache(CacheFlag.VOICE_STATE).addEventListeners(EventListeners()).build()
+    jda.awaitReady()
+    jda.getGuildById(735899211677041099)?.updateCommands()?.addCommands(CommandManager.getAllSlashCommand())?.queue()
 }
