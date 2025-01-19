@@ -11,6 +11,7 @@ object AudioPlayerManager {
         }
         this.configuration.isFilterHotSwapEnabled = true
         val ytSourceManager = dev.lavalink.youtube.YoutubeAudioSourceManager(true)
+        ytSourceManager.useOauth2(null, false)
         this.registerSourceManagers(ytSourceManager)
         AudioSourceManagers.registerRemoteSources(this)
         AudioSourceManagers.registerLocalSource(this)
@@ -21,5 +22,16 @@ object AudioPlayerManager {
         return musicManagers.getOrPut(guildId) {
             GuildMusicManager(audioPlayerManager.createPlayer())
         }
+    }
+
+    fun destroyMusicManager(guidlId: Long) {
+        val manager = musicManagers[guidlId]
+        manager?.player?.destroy()
+        musicManagers.remove(guidlId)
+
+    }
+
+    fun musicManagerExist(guildId: Long) : Boolean {
+        return musicManagers.containsKey(guildId)
     }
 }

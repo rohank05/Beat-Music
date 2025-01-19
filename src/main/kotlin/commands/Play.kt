@@ -1,13 +1,14 @@
 package commands
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import interfaces.ICommand
 import modules.AudioPlayerManager
-import net.dv8tion.jda.api.Permission
+import modules.EmbedUtils
+import modules.GuildMusicManager
+import modules.Utilities
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -17,53 +18,110 @@ class Play: ICommand {
     override val name = "play"
 
     override suspend fun execute(event: SlashCommandInteractionEvent) {
-        event.deferReply(true).queue()
-        if(event.guild == null) return
+        event.deferReply().queue()
+        if(!event.guildChannel.asTextChannel().canTalk()) {
+            val embed = EmbedUtils.createErrorEmbed("Permission Error", "I need permission to send message in this channel")
+            event.hook.sendMessageEmbeds(embed).queue()
+            return
+        }
         val query = event.interaction.getOption("query")!!.asString
         val musicManager = AudioPlayerManager.getMusicManager(event.guild!!.idLong)
-        if(ensureVoiceChannel(event, musicManager.audioPlayer)) {
+        if(musicManager.taskScheduler.textChannel === null) {
+            musicManager.taskScheduler.textChannel = event.guildChannel.asTextChannel()
+        }
+        if(ensureVoiceChannel(event)) {
             event.guild!!.audioManager.sendingHandler = musicManager.sendHandler
-            AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager.audioPlayer, query))
+            AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager))
         }
 
     }
 
-    fun ensureVoiceChannel(event: SlashCommandInteractionEvent, player: AudioPlayer): Boolean {
+    private fun ensureVoiceChannel(event: SlashCommandInteractionEvent): Boolean {
         val ourVC = event.guild!!.selfMember.voiceState?.channel
         val theirVC = event.member!!.voiceState?.channel
-        if (ourVC == null && theirVC == null) {
-            event.hook.sendMessage("You need to be in voice channel").queue()
+        if (ourVC === null && theirVC === null) {
+            event.hook.sendMessageEmbeds(Utilities.createYellowEmbed(null, "You need to be in Voice Channel to use this command", null, null)).queue()
             return false
         }
-        if (ourVC !== theirVC && theirVC !== null) {
-           val canTalk = event.guild!!.selfMember.hasPermission(Permission.VOICE_SPEAK, Permission.VOICE_CONNECT)
-            if(!canTalk) {
-                event.hook.sendMessage("I need permission to connect and speak in ${theirVC.name}").queue()
-                return false
-            }
-            event.guild!!.audioManager.openAudioConnection(theirVC)
-            return true
+        if(ourVC !== null && ourVC !== theirVC) {
+            event.hook.sendMessageEmbeds(Utilities.createYellowEmbed(null, "You need to be in same Voice Channel as me", null, null)).queue()
+            return false
         }
+        event.guild!!.audioManager.openAudioConnection(theirVC)
         return true
     }
 
-    inner class Loader (private val event: SlashCommandInteractionEvent, private val player: AudioPlayer, private val identified: String): AudioLoadResultHandler {
+    inner class Loader(private val event: SlashCommandInteractionEvent, private val musicManager: GuildMusicManager) : AudioLoadResultHandler {
         override fun trackLoaded(track: AudioTrack) {
-            player.startTrack(track, false)
+            track.userData = event.user
+            musicManager.taskScheduler.queue(track)
+            val embed = EmbedUtils.createAddedToQueueEmbed(
+                trackTitle = track.info.title,
+                trackUrl = track.info.uri,
+                author = track.info.author,
+                durationMillis = track.duration,
+                thumbnail = track.info.artworkUrl,
+                requestedBy = event.user
+            )
+            event.hook.sendMessageEmbeds(embed).queue()
         }
 
-        override fun playlistLoaded(tracks: AudioPlaylist) {
-            player.startTrack(tracks.tracks[0], false)
+        override fun playlistLoaded(playlist: AudioPlaylist) {
+            when {
+                playlist.isSearchResult -> {
+                    // Handle single track from search
+                    val track = playlist.tracks.first()
+                    track.userData = event.user
+                    musicManager.taskScheduler.queue(track)
+                    val embed = EmbedUtils.createAddedToQueueEmbed(
+                        trackTitle = track.info.title,
+                        trackUrl = track.info.uri,
+                        author = track.info.author,
+                        durationMillis = track.duration,
+                        thumbnail = track.info.artworkUrl,
+                        requestedBy = event.user
+                    )
+                    event.hook.sendMessageEmbeds(embed).queue()
+                }
+                else -> {
+                    // Handle actual playlist
+                    val tracksToAdd = playlist.tracks.take(100)  // Limit to 100 tracks
+                    tracksToAdd.forEach { track ->
+                        track.userData = event.user
+                        musicManager.taskScheduler.queue(track)
+                    }
+                    val tracksInfo = tracksToAdd.map { track ->
+                        Triple(track.info.title, track.info.uri, track.info.author)
+                    }
+
+                    val embed = EmbedUtils.createPlaylistAddedEmbed(
+                        playlistName = playlist.name,
+                        tracksAdded = tracksToAdd.size,
+                        tracks = tracksInfo,
+                        thumbnail = tracksToAdd.first().info.artworkUrl,
+                        firstTrackUrl = tracksToAdd.first().info.uri,
+                        requestedBy = event.user
+                    )
+                    event.hook.sendMessageEmbeds(embed).queue()
+                }
+            }
         }
 
         override fun noMatches() {
-
+            val embed = EmbedUtils.createErrorEmbed(
+                title = "No Results Found",
+                description = "Could not find any tracks matching your query."
+            )
+            event.hook.sendMessageEmbeds(embed).queue()
         }
 
-        override fun loadFailed(p0: FriendlyException?) {
-
+        override fun loadFailed(exception: FriendlyException?) {
+            val embed = EmbedUtils.createErrorEmbed(
+                title = "Failed to Load Track",
+                description = exception?.message ?: "An unknown error occurred while loading the track."
+            )
+            event.hook.sendMessageEmbeds(embed).queue()
         }
-
     }
 
     override fun createSlashCommand(): SlashCommandData {

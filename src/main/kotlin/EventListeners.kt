@@ -16,10 +16,13 @@ class EventListeners: ListenerAdapter() {
     }
 
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
+        if(event.guild === null) return
         val command: ICommand? = CommandManager.getCommand(event.name)
         scope.launch {
             command?.execute(event)
         }
     }
+
+
 
 }
