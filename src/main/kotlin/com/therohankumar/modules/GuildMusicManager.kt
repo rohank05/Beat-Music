@@ -1,4 +1,4 @@
-package modules
+package com.therohankumar.modules
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 

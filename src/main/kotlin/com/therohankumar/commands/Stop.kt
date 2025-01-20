@@ -1,8 +1,9 @@
-package commands
+package com.therohankumar.commands
 
-import interfaces.ICommand
-import modules.AudioPlayerManager
-import modules.EmbedUtils
+import com.therohankumar.interfaces.ICommand
+import com.therohankumar.modules.AudioPlayerManager
+import com.therohankumar.modules.EmbedUtils
+import com.therohankumar.modules.Utilities
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -10,12 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class Stop: ICommand {
     override val name = "stop"
     override suspend fun execute(event: SlashCommandInteractionEvent) {
-        event.deferReply().queue()
-        if(!AudioPlayerManager.musicManagerExist(guildId = event.guild!!.idLong)) {
-            val embed = EmbedUtils.createErrorEmbed("Not Playing Anything", "You need to start playing song first")
-            event.hook.sendMessageEmbeds(embed).queue()
-            return
-        }
+        if(!Utilities.commandCheck(event)) return
         val musicManager = AudioPlayerManager.getMusicManager(event.guild!!.idLong)
         musicManager.player.stopTrack()
         AudioPlayerManager.destroyMusicManager(event.guild!!.idLong)

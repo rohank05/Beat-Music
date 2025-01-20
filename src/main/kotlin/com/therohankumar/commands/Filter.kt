@@ -1,9 +1,10 @@
-package commands
+package com.therohankumar.commands
 
-import interfaces.ICommand
-import modules.AudioPlayerManager
-import modules.EmbedUtils
-import modules.FilterSettings
+import com.therohankumar.interfaces.ICommand
+import com.therohankumar.modules.AudioPlayerManager
+import com.therohankumar.modules.EmbedUtils
+import com.therohankumar.modules.FilterSettings
+import com.therohankumar.modules.Utilities
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -17,12 +18,7 @@ class Filter : ICommand {
     override val name = "filter"
 
     override suspend fun execute(event: SlashCommandInteractionEvent) {
-        event.deferReply().queue()
-        if(!AudioPlayerManager.musicManagerExist(guildId = event.guild!!.idLong)) {
-            val embed = EmbedUtils.createErrorEmbed("Not Playing Anything", "You need to start playing song first")
-            event.hook.sendMessageEmbeds(embed).queue()
-            return
-        }
+        if(!Utilities.commandCheck(event)) return
         val musicManager = AudioPlayerManager.getMusicManager(event.guild!!.idLong)
         val currentFilters = musicManager.audioFilter.getFilterStates()
 

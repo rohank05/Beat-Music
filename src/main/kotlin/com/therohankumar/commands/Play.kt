@@ -1,14 +1,13 @@
-package commands
+package com.therohankumar.commands
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
-import interfaces.ICommand
-import modules.AudioPlayerManager
-import modules.EmbedUtils
-import modules.GuildMusicManager
-import modules.Utilities
+import com.therohankumar.interfaces.ICommand
+import com.therohankumar.modules.AudioPlayerManager
+import com.therohankumar.modules.EmbedUtils
+import com.therohankumar.modules.GuildMusicManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -40,11 +39,11 @@ class Play: ICommand {
         val ourVC = event.guild!!.selfMember.voiceState?.channel
         val theirVC = event.member!!.voiceState?.channel
         if (ourVC === null && theirVC === null) {
-            event.hook.sendMessageEmbeds(Utilities.createYellowEmbed(null, "You need to be in Voice Channel to use this command", null, null)).queue()
+            event.hook.sendMessageEmbeds(EmbedUtils.createErrorEmbed("Error", "You need to be in Voice Channel to use this command")).queue()
             return false
         }
         if(ourVC !== null && ourVC !== theirVC) {
-            event.hook.sendMessageEmbeds(Utilities.createYellowEmbed(null, "You need to be in same Voice Channel as me", null, null)).queue()
+            event.hook.sendMessageEmbeds(EmbedUtils.createErrorEmbed("Error", "You need to be in same Voice Channel as me")).queue()
             return false
         }
         event.guild!!.audioManager.openAudioConnection(theirVC)

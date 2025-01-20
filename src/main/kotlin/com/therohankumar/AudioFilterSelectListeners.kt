@@ -1,5 +1,7 @@
-import modules.AudioPlayerManager
-import modules.EmbedUtils
+package com.therohankumar
+
+import com.therohankumar.modules.AudioPlayerManager
+import com.therohankumar.modules.EmbedUtils
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent

@@ -1,13 +1,13 @@
-package modules
+package com.therohankumar.modules
 
-import commands.*
-import interfaces.ICommand
+import com.therohankumar.commands.*
+import com.therohankumar.interfaces.ICommand
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 object CommandManager {
     private val commands = mutableMapOf<String, ICommand>()
     private var slashCommands = listOf<SlashCommandData>()
-    private val commandList = listOf(Play(), Filter(), Skip(), Stop(), Queue())
+    private val commandList = listOf(Play(), Filter(), Skip(), Stop(), Queue(), NowPlaying(), Pause(), Resume())
 
 
     fun registerAllCommand() {

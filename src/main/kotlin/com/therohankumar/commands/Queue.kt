@@ -1,26 +1,22 @@
-package commands
+package com.therohankumar.commands
 
-import interfaces.ICommand
-import modules.AudioPlayerManager
-import modules.EmbedUtils
+import com.therohankumar.interfaces.ICommand
+import com.therohankumar.modules.AudioPlayerManager
+import com.therohankumar.modules.EmbedUtils
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.concurrent.BlockingQueue
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.therohankumar.modules.Utilities
 
 class Queue : ICommand {
     override val name = "queue"
     private val itemsPerPage = 10
 
     override suspend fun execute(event: SlashCommandInteractionEvent) {
-        event.deferReply().queue()
-        if(!AudioPlayerManager.musicManagerExist(guildId = event.guild!!.idLong)) {
-            val embed = EmbedUtils.createErrorEmbed("Not Playing Anything", "You need to start playing song first")
-            event.hook.sendMessageEmbeds(embed).queue()
-            return
-        }
+        if(!Utilities.commandCheck(event)) return
         val musicManager = AudioPlayerManager.getMusicManager(event.guild!!.idLong)
         val queue: BlockingQueue<AudioTrack> = musicManager.taskScheduler.queue
 

@@ -1,4 +1,4 @@
-package modules
+package com.therohankumar.modules
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed

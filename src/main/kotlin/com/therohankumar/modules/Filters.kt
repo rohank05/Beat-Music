@@ -1,4 +1,4 @@
-package modules
+package com.therohankumar.modules
 
 import com.github.natanbc.lavadsp.rotation.RotationPcmAudioFilter
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter

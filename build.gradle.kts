@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.0.21"
+    application
 }
 
 group = "com.therohankumar"
@@ -28,9 +29,30 @@ dependencies {
 
 }
 
-tasks.test {
-    useJUnitPlatform()
+// Specify the main class
+application {
+    mainClass.set("com.therohankumar.MainKt") // Replace with your actual main class
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+    jar {
+        manifest {
+            attributes["Main-Class"] = application.mainClass.get()
+        }
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        from(sourceSets.main.get().output)
+        dependsOn(configurations.runtimeClasspath)
+        from({
+            configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+        })
+    }
 }
 kotlin {
     jvmToolchain(21)
+
 }
