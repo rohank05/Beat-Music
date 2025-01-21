@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
+import java.net.URL
 
 class Play: ICommand {
     override val name = "play"
@@ -30,7 +31,11 @@ class Play: ICommand {
         }
         if(ensureVoiceChannel(event)) {
             event.guild!!.audioManager.sendingHandler = musicManager.sendHandler
-            AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager))
+            if(isURL(query)) {
+                AudioPlayerManager.audioPlayerManager.loadItem(query, Loader(event, musicManager))
+            }else{
+                AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager))
+            }
         }
 
     }
@@ -51,9 +56,17 @@ class Play: ICommand {
         return true
     }
 
+    private fun isURL(url: String): Boolean {
+        try {
+            URL(url).toURI()
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
     inner class Loader(private val event: SlashCommandInteractionEvent, private val musicManager: GuildMusicManager) : AudioLoadResultHandler {
         override fun trackLoaded(track: AudioTrack) {
-            track.userData = event.user
             musicManager.taskScheduler.queue(track)
             val embed = EmbedUtils.createAddedToQueueEmbed(
                 trackTitle = track.info.title,
@@ -125,6 +138,7 @@ class Play: ICommand {
     }
 
     override fun createSlashCommand(): SlashCommandData {
-        return Commands.slash("play", "Search and Play/Queue Song or Playlist").addOption(OptionType.STRING, "query", "Name or URL", true)
+        return Commands.slash("play", "Search and Play/Queue Song or Playlist")
+            .addOption(OptionType.STRING, "query", "Name or URL", true)
     }
 }
