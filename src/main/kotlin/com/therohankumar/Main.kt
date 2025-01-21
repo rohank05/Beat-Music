@@ -11,5 +11,5 @@ fun main() {
         EventListeners(), AudioFilterSelectListeners()
     ).build()
     jda.awaitReady()
-    jda.getGuildById(735899211677041099)?.updateCommands()?.addCommands(CommandManager.getAllSlashCommand())?.queue()
+    jda.getGuildById(759181529753976863)?.updateCommands()?.addCommands(CommandManager.getAllSlashCommand())?.queue()
 }
