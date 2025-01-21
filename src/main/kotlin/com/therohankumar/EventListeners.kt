@@ -29,34 +29,36 @@ class EventListeners: ListenerAdapter() {
         }
     }
 
-        override fun onGenericGuildVoice(event: GenericGuildVoiceEvent) {
-            // Case 1: Bot is forcefully disconnected
-            if (event is GuildVoiceUpdateEvent &&
-                event.member.idLong == event.guild.selfMember.idLong &&
-                event.channelLeft != null &&
-                event.channelJoined == null) {
-                AudioPlayerManager.destroyMusicManager(event.guild.idLong)
-                return
+    override fun onGenericGuildVoice(event: GenericGuildVoiceEvent) {
+        // Get bot's voice state
+        val botVoiceState = event.guild.selfMember.voiceState ?: return
+
+        // Get bot's voice channel
+        val botChannel = botVoiceState.channel ?: run {
+            AudioPlayerManager.destroyMusicManager(event.guild.idLong)
+            return
+        }
+
+        // If this is a voice update event, check both old and new channels
+        if (event is GuildVoiceUpdateEvent) {
+            // If someone left the bot's channel
+            if (event.channelLeft == botChannel) {
+                // Check if bot is alone now
+                if (botChannel.members.size <= 1) {
+                    event.guild.audioManager.closeAudioConnection()
+                    AudioPlayerManager.destroyMusicManager(event.guild.idLong)
+                }
             }
+            return
+        }
 
-            // Return if bot is not in any voice channel
-            val botVoiceState = event.guild.selfMember.voiceState ?: return
+        // For other voice events, check if it's related to bot's channel
+        if (event.voiceState.channel != botChannel) return
 
-            // Return if bot is not connected to a voice channel
-            val botChannel = botVoiceState.channel ?: run {
-                AudioPlayerManager.destroyMusicManager(event.guild.idLong)
-                return
-            }
-
-            // Return if the event is not from bot's current channel
-            if (event.voiceState.channel != botChannel) return
-
-            // Case 2: Everyone left the channel (only bot remains)
-            if (botChannel.members.size <= 1) {
-                val musicManager = AudioPlayerManager.getMusicManager(event.guild.idLong)
-                musicManager.player.destroy()
-                event.guild.audioManager.closeAudioConnection()
-                AudioPlayerManager.destroyMusicManager(event.guild.idLong)
-            }
+        // Check if bot is alone
+        if (botChannel.members.size <= 1) {
+            event.guild.audioManager.closeAudioConnection()
+            AudioPlayerManager.destroyMusicManager(event.guild.idLong)
+        }
     }
 }

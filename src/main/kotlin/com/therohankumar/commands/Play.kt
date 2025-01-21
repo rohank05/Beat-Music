@@ -47,6 +47,7 @@ class Play: ICommand {
             return false
         }
         event.guild!!.audioManager.openAudioConnection(theirVC)
+        event.guild!!.selfMember.deafen(true).queue()
         return true
     }
 
