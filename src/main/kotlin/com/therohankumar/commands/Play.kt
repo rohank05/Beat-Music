@@ -24,8 +24,8 @@ class Play: ICommand {
             event.hook.sendMessageEmbeds(embed).queue()
             return
         }
-        val query = event.interaction.getOption("query")!!.asString
         val musicManager = AudioPlayerManager.getMusicManager(event.guild!!.idLong)
+        val query = event.interaction.getOption("query")!!.asString
         if(musicManager.taskScheduler.textChannel === null) {
             musicManager.taskScheduler.textChannel = event.guildChannel.asTextChannel()
         }
@@ -37,7 +37,6 @@ class Play: ICommand {
                 AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager))
             }
         }
-
     }
 
     private fun ensureVoiceChannel(event: SlashCommandInteractionEvent): Boolean {
@@ -68,6 +67,7 @@ class Play: ICommand {
     inner class Loader(private val event: SlashCommandInteractionEvent, private val musicManager: GuildMusicManager) : AudioLoadResultHandler {
         override fun trackLoaded(track: AudioTrack) {
             musicManager.taskScheduler.queue(track)
+            track.userData = event.user
             val embed = EmbedUtils.createAddedToQueueEmbed(
                 trackTitle = track.info.title,
                 trackUrl = track.info.uri,

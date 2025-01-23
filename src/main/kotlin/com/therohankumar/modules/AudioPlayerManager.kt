@@ -43,7 +43,6 @@ object AudioPlayerManager {
         val manager = musicManagers[guildId]
         manager?.player?.destroy()
         musicManagers.remove(guildId)
-
     }
 
     fun musicManagerExist(guildId: Long) : Boolean {

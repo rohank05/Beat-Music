@@ -13,5 +13,10 @@ fun main() {
         EventListeners(), AudioFilterSelectListeners()
     ).build()
     jda.awaitReady()
-    jda.getGuildById(759181529753976863)?.updateCommands()?.addCommands(CommandManager.getAllSlashCommand())?.queue()
+    if(ENV.DISCORD_GUILD == null || ENV.DISCORD_GUILD == "") {
+        jda.updateCommands().addCommands(CommandManager.getAllSlashCommand()).queue()
+    }
+    else{
+        jda.getGuildById(ENV.DISCORD_GUILD)?.updateCommands()?.addCommands(CommandManager.getAllSlashCommand())?.queue()
+    }
 }
