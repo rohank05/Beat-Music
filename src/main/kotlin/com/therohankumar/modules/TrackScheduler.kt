@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 
 class TrackScheduler(private val audioPlayer: AudioPlayer): AudioEventAdapter() {
-    var queue: BlockingQueue<AudioTrack> = LinkedBlockingQueue()
+    val queue: BlockingQueue<AudioTrack> = LinkedBlockingQueue()
     var textChannel: TextChannel? = null
     fun queue(track: AudioTrack) {
         if(audioPlayer.playingTrack == null) {
