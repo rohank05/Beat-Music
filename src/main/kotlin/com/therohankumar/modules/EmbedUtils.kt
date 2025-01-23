@@ -14,7 +14,7 @@ object EmbedUtils {
         author: String,
         durationMillis: Long,
         thumbnail: String?,
-        requestedBy: User
+        requestedBy: User?
     ): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
@@ -25,7 +25,9 @@ object EmbedUtils {
                 append("Duration: `${formatDuration(durationMillis)}`")
             })
             setThumbnail(thumbnail ?: getTrackThumbnail(trackUrl))
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 
@@ -35,7 +37,7 @@ object EmbedUtils {
         author: String,
         durationMillis: Long,
         thumbnail: String?,
-        requestedBy: User
+        requestedBy: User?
     ): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
@@ -46,7 +48,9 @@ object EmbedUtils {
                 append("Duration: `${formatDuration(durationMillis)}`")
             })
             setThumbnail(thumbnail ?: getTrackThumbnail(trackUrl))
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 
@@ -56,7 +60,7 @@ object EmbedUtils {
         tracks: List<Triple<String, String, String>>, // List of (title, url, author)
         thumbnail: String?,
         firstTrackUrl: String,
-        requestedBy: User
+        requestedBy: User?
     ): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
@@ -76,7 +80,9 @@ object EmbedUtils {
                 }
             })
             setThumbnail(thumbnail ?: getTrackThumbnail(firstTrackUrl))
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 
@@ -92,7 +98,7 @@ object EmbedUtils {
     fun createSkipEmbed(
         skippedTrack: String,
         nextTrack: String? = null,
-        requestedBy: User
+        requestedBy: User?
     ): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
@@ -103,7 +109,9 @@ object EmbedUtils {
                     append("\nNow playing: **$nextTrack**")
                 }
             })
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 
@@ -116,7 +124,7 @@ object EmbedUtils {
         }.build()
     }
 
-    fun createPauseEmbed(isPaused: Boolean, requestedBy: User): MessageEmbed {
+    fun createPauseEmbed(isPaused: Boolean, requestedBy: User?): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
             setTitle(if (isPaused) "Playback Paused" else "Playback Resumed")
@@ -124,7 +132,9 @@ object EmbedUtils {
                 "The music has been paused. Use `/resume` to continue playback."
             else "The music has been resumed."
             )
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 
@@ -132,7 +142,7 @@ object EmbedUtils {
         filterName: String,
         isEnabled: Boolean,
         description: String? = null,
-        requestedBy: User
+        requestedBy: User?
     ): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
@@ -143,7 +153,9 @@ object EmbedUtils {
                     append("\n\n$description")
                 }
             })
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 
@@ -168,7 +180,7 @@ object EmbedUtils {
         totalDuration: Long,
         currentPage: Int,
         totalPages: Int,
-        requestedBy: User
+        requestedBy: User?
     ): MessageEmbed {
         return EmbedBuilder().apply {
             setColor(YELLOW_COLOR)
@@ -179,7 +191,9 @@ object EmbedUtils {
                 "**$totalTracks** tracks | Total Duration: `${formatDuration(totalDuration)}`",
                 false
             )
-            setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            if(requestedBy!=null){
+                setFooter("Requested by ${requestedBy.name}", requestedBy.effectiveAvatarUrl)
+            }
         }.build()
     }
 

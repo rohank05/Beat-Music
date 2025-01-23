@@ -39,7 +39,7 @@ class TrackScheduler(private val audioPlayer: AudioPlayer): AudioEventAdapter() 
             author = track.info.author,
             durationMillis = track.duration,
             thumbnail = track.info.artworkUrl,
-            requestedBy = track.userData as User
+            requestedBy = track.userData as User?
         )
         textChannel?.sendMessageEmbeds(embed)?.queue()
     }

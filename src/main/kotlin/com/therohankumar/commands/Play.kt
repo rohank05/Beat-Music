@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
+import java.net.URL
 
 class Play: ICommand {
     override val name = "play"
@@ -23,16 +24,19 @@ class Play: ICommand {
             event.hook.sendMessageEmbeds(embed).queue()
             return
         }
-        val query = event.interaction.getOption("query")!!.asString
         val musicManager = AudioPlayerManager.getMusicManager(event.guild!!.idLong)
+        val query = event.interaction.getOption("query")!!.asString
         if(musicManager.taskScheduler.textChannel === null) {
             musicManager.taskScheduler.textChannel = event.guildChannel.asTextChannel()
         }
         if(ensureVoiceChannel(event)) {
             event.guild!!.audioManager.sendingHandler = musicManager.sendHandler
-            AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager))
+            if(isURL(query)) {
+                AudioPlayerManager.audioPlayerManager.loadItem(query, Loader(event, musicManager))
+            }else{
+                AudioPlayerManager.audioPlayerManager.loadItem("ytmsearch:${query}", Loader(event, musicManager))
+            }
         }
-
     }
 
     private fun ensureVoiceChannel(event: SlashCommandInteractionEvent): Boolean {
@@ -50,10 +54,19 @@ class Play: ICommand {
         return true
     }
 
+    private fun isURL(url: String): Boolean {
+        try {
+            URL(url).toURI()
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
     inner class Loader(private val event: SlashCommandInteractionEvent, private val musicManager: GuildMusicManager) : AudioLoadResultHandler {
         override fun trackLoaded(track: AudioTrack) {
-            track.userData = event.user
             musicManager.taskScheduler.queue(track)
+            track.userData = event.user
             val embed = EmbedUtils.createAddedToQueueEmbed(
                 trackTitle = track.info.title,
                 trackUrl = track.info.uri,
@@ -124,6 +137,7 @@ class Play: ICommand {
     }
 
     override fun createSlashCommand(): SlashCommandData {
-        return Commands.slash("play", "Search and Play/Queue Song or Playlist").addOption(OptionType.STRING, "query", "Name or URL", true)
+        return Commands.slash("play", "Search and Play/Queue Song or Playlist")
+            .addOption(OptionType.STRING, "query", "Name or URL", true)
     }
 }
