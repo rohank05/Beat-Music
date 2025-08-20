@@ -2,6 +2,7 @@ package com.therohankumar.modules
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.therohankumar.ENV
 import org.slf4j.LoggerFactory
 
@@ -11,7 +12,16 @@ object AudioPlayerManager {
     val audioPlayerManager = DefaultAudioPlayerManager().apply {
         this.configuration.isFilterHotSwapEnabled = true
         
-        // Register standard audio sources
+        try {
+            // Try to set up YouTube source manager with available dependencies
+            val youtubeSourceManager = YoutubeAudioSourceManager()
+            this.registerSourceManager(youtubeSourceManager)
+            logger.info("YouTube source manager registered successfully")
+        } catch (ex: Exception) {
+            logger.warn("Failed to register YouTube source manager, using fallback sources: ${ex.message}")
+        }
+        
+        // Register standard audio sources (includes HTTP, SoundCloud, etc.)
         AudioSourceManagers.registerRemoteSources(this)
         AudioSourceManagers.registerLocalSource(this)
         
