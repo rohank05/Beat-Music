@@ -55,10 +55,9 @@ class EventListeners: ListenerAdapter() {
         val voiceState = event.guild.selfMember.voiceState
         
         // Check if bot is in a voice channel
-        if (voiceState?.channel == null) return
+        val botChannel = voiceState?.channel ?: return
         
         // Check if bot was left alone in the channel
-        val botChannel = voiceState.channel
         if (botChannel == event.channelLeft && botChannel.members.size == 1) {
             logger.info("Bot left alone in voice channel ${botChannel.name}, disconnecting...")
             event.guild.audioManager.closeAudioConnection()

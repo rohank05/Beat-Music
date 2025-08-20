@@ -112,15 +112,7 @@ class Reverb : ICommand {
     }
 
     override fun createSlashCommand(): SlashCommandData {
-        val command = Commands.slash(name, "Apply reverb effect with different room acoustics")
+        return Commands.slash(name, "Apply reverb effect with different room acoustics")
             .addOption(OptionType.STRING, "room", "Select room type directly", false)
-            
-        // Add choices for each room preset
-        ReverbPcmAudioFilter.RoomPreset.values().forEach { preset ->
-            val choiceName = preset.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
-            command.addChoice(choiceName, preset.name)
-        }
-        
-        return command
     }
 }
