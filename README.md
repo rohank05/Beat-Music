@@ -11,121 +11,268 @@
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Content
-* [About the Project](https://github.com/OpenianDevelopment/Beat-Music#about-the-project)
-  * [Library Used](https://github.com/OpenianDevelopment/Beat-Music#library-used)
-* [Getting Started](https://github.com/OpenianDevelopment/Beat-Music#getting-started)
-  * [Prerequisite](https://github.com/OpenianDevelopment/Beat-Music#prerequisite)
-  * [Setup](https://github.com/OpenianDevelopment/Beat-Music#setup)
-  * [Starting the Bot](https://github.com/OpenianDevelopment/Beat-Music#starting-the-bot)
-  * [Additional settings](https://github.com/OpenianDevelopment/Beat-Music#additional-settings)
-* [Contributing](https://github.com/OpenianDevelopment/Beat-Music#contributing)
-* [LICENSE](https://github.com/OpenianDevelopment/Beat-Music#license)
-* [Contact](https://github.com/OpenianDevelopment/Beat-Music#contact)
+* [About the Project](#about-the-project)
+  * [Features](#features)
+  * [Library Used](#library-used)
+* [Getting Started](#getting-started)
+  * [Prerequisite](#prerequisite)
+  * [Setup](#setup)
+  * [Starting the Bot](#starting-the-bot)
+  * [Additional settings](#additional-settings)
+* [Commands](#commands)
+  * [Music Commands](#music-commands)
+  * [Filter Commands](#filter-commands)
+* [Contributing](#contributing)
+* [LICENSE](#license)
+* [Contact](#contact)
 
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
+[Beat Music](https://menhera-chan.in/support) is a powerful Discord music bot designed to enhance your server's audio experience. Built with modern technologies and slash commands, it provides high-quality music playback with advanced audio filtering capabilities.
 
-
-[Beat Music](https://menhera-chan.in/support) is a music bot. It has Spotify support and can add filters like nightcore to the song you are playing. It is completely based on slash command
-
-Feature:
-* Music
-* Spotify
-* Filters
-* Autoplay
-* 24/7
+### Features
+* 🎵 **High-Quality Music Playback** - Stream music from various sources
+* 🎧 **Advanced Audio Filters** - Multiple filters including Nightcore, 8D, Bass Boost, and more
+* 🏛️ **Professional Reverb System** - 11 different room acoustics (Small Room, Concert Hall, Cathedral, etc.)
+* 🎼 **Spotify Integration** - Full Spotify support for playlists and tracks
+* 🔄 **Smart Queue Management** - Advanced queue system with shuffle and management
+* 🤖 **Slash Commands** - Modern Discord interaction with intuitive commands
+* 📊 **Audio Visualization** - Real-time audio processing and effects
+* 🔁 **Autoplay & 24/7** - Continuous playback capabilities
+* 🛡️ **Age-Restricted Content** - Safe content filtering options
+* 💾 **Database Support** - MongoDB integration for persistence
 
 
 
 ### Library Used
-* [JDA](https://github.com/DV8FromTheWorld/JDA)
-* [lavaplayer-fork](https://github.com/Walkyst/lavaplayer-fork)
-* [lavadsp](https://github.com/natanbc/lavadsp)
-* [lavadsp-extended](https://github.com/rohank05/lavadsp-extended)
-* [jda-nas](https://github.com/sedmelluq/jda-nas)
-* [jda-chewtils](https://github.com/Chew/JDA-Chewtils)
-
-
+* [JDA](https://github.com/DV8FromTheWorld/JDA) - Discord API wrapper
+* [lavaplayer-fork](https://github.com/Walkyst/lavaplayer-fork) - Audio playback engine
+* [lavadsp](https://github.com/natanbc/lavadsp) - Digital signal processing
+* [lavadsp-extended](https://github.com/rohank05/lavadsp-extended) - Extended audio filters
+* [jda-nas](https://github.com/sedmelluq/jda-nas) - Native audio system
+* [jda-chewtils](https://github.com/Chew/JDA-Chewtils) - JDA utilities
+* [Kotlin](https://kotlinlang.org/) - Modern programming language
+* [Gradle](https://gradle.org/) - Build automation
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-
 ### Prerequisite
-1. Download [java 19 or greater](https://www.java.com/en/download/)
-2. Download the [Release](https://github.com/OpenianDevelopment/Beat-Music/releases)
+1. Download [Java 21 or greater](https://adoptium.net/temurin/releases/)
+2. Download the [Latest Release](https://github.com/rohank05/Beat-Music/releases)
+3. A Discord Bot Token ([Create Bot Application](https://discord.com/developers/applications))
 
 ### Setup
 
-1. Unzip the zip file downloaded from the release.
+1. **Extract the Release Files**
+   ```
+   Unzip the downloaded release file to your preferred directory
+   ```
 
-2. Create a [bot](https://discord.com/developers/applications) and name it anything you want.
-![image](https://user-images.githubusercontent.com/52258148/208941239-fa692f1a-2819-47bc-ae64-71d32d39d0e6.png)
+2. **Create Discord Bot Application**
+   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+   - Create a new application and name it
+   - Navigate to the "Bot" section
+   - Create a bot and copy the token
 
-2. Obtain a bot token.
-![image](https://user-images.githubusercontent.com/52258148/208941804-20575215-de49-4826-a19c-9bd2d74bf23b.png)
-![image](https://user-images.githubusercontent.com/52258148/208942009-a7c00db5-d327-41c3-82dc-96cd21854dd2.png)
-![image](https://user-images.githubusercontent.com/52258148/208942141-05fa69da-14dc-41f0-9fd1-6c843ad0ff16.png)
-![image](https://user-images.githubusercontent.com/52258148/208942595-495911bc-2cc0-49a5-8089-04a1ca58804f.png)
+3. **Configure Environment**
+   - Rename `Example.env` to `.env`
+   - Add your bot token: `DISCORD_TOKEN=your_bot_token_here`
+   - Configure other optional settings as needed
 
-3. Invite the bot to your server with these scopes and permissions listed below. Add the bot with the link generated below.
-![image](https://user-images.githubusercontent.com/52258148/208943344-7a6b7968-83d9-4903-83a4-6456a8468527.png)
-![image](https://user-images.githubusercontent.com/52258148/208943538-2068e96a-a9ef-48b8-b2eb-74dcdb5729c6.png)
-copy and paste the generated url into your browser and invite the bot to your server.
-(Administrator is not required but help if you have trouble with permissions)
-![image](https://user-images.githubusercontent.com/52258148/208944374-cb871445-e8e9-4413-89ef-b22a65791f37.png)
-
+4. **Invite Bot to Server**
+   - Go to OAuth2 > URL Generator in Discord Developer Portal
+   - Select scopes: `bot`, `applications.commands`
+   - Select permissions: `Send Messages`, `Use Slash Commands`, `Connect`, `Speak`, `Use Voice Activity`
+   - Copy the generated URL and invite the bot to your server
 
 ### Starting the Bot
 
-1. In the release files open example.env and put your token after `TOKEN=` and rename the file to `.env` 
-2. Run `Register.bat`(it might take some time to register slash commands).
-3. Once commands have registered run `Start_Bot.bat` and that's it.
+#### First Time Setup
+1. Run `Register.bat` (Windows) or `./register.sh` (Linux/Mac) to register slash commands
+2. Wait for the registration to complete (this may take a few minutes)
+3. Run `Start_Bot.bat` (Windows) or `./start_bot.sh` (Linux/Mac)
 
-The next time you start the bot just run `Start_Bot.bat`
+#### Subsequent Starts
+- Simply run `Start_Bot.bat` (Windows) or `./start_bot.sh` (Linux/Mac)
+
+> **Note:** Command registration is only needed once or when commands are updated.
 
 ### Additional Settings
 
-Some of the bot features are locked behind these additional paramerter.
-1. Age restricted content
+Beat Music supports several optional features that can be enabled through environment configuration:
 
-    input a gmail account that has the ability to view mature content in the `.env`.
-2. Spotify support
-obtain a [token](https://developer.spotify.com/dashboard/applications)
-![image](https://user-images.githubusercontent.com/52258148/208948230-61cf60e6-a895-4812-abca-d6d6e015348e.png)
-![image](https://user-images.githubusercontent.com/52258148/208948547-d0a77b9e-b57c-453f-bb66-66a294dd79cd.png)
-Input client id and token in '.env'
-3. Database support
+#### 1. Age Restricted Content Support
+```env
+# Add to .env file
+YOUTUBE_EMAIL=your_email@gmail.com
+YOUTUBE_PASSWORD=your_password
+```
+Enable playback of age-restricted YouTube content by providing Gmail credentials with mature content access.
 
-    Download and install mongodb and set `ENABLE_DB=true`
+#### 2. Spotify Integration
+```env
+# Add to .env file  
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+```
+1. Visit [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/applications)
+2. Create a new application
+3. Copy Client ID and Client Secret
+4. Add them to your `.env` file
+
+#### 3. Database Support (MongoDB)
+```env
+# Add to .env file
+ENABLE_DB=true
+MONGODB_URI=mongodb://localhost:27017/beatmusic
+```
+- Install and configure MongoDB
+- Set `ENABLE_DB=true` to enable database features
+- Provides persistent settings and user preferences
+
+#### 4. Advanced Configuration
+```env
+# Guild-specific deployment (optional)
+DISCORD_GUILD=your_guild_id_here
+
+# Logging level
+LOG_LEVEL=INFO
+
+# Audio quality settings
+AUDIO_QUALITY=HIGH
+```
+
+## Commands
+
+### Music Commands
+- `/play <query>` - Play music from YouTube, Spotify, or direct links
+- `/skip` - Skip the current track
+- `/stop` - Stop playback and clear queue
+- `/pause` - Pause current track
+- `/resume` - Resume paused track
+- `/queue` - View current queue
+- `/nowplaying` - Show currently playing track
+- `/shuffle` - Shuffle the queue
+- `/clear` - Clear the entire queue
+- `/shift <position>` - Move to specific position in queue
+
+### Filter Commands
+- `/filter` - Open filter selection menu with options:
+  - **Nightcore** - Higher pitch and tempo
+  - **8D Audio** - Rotating audio effect  
+  - **Vibrato** - Frequency modulation
+  - **Tremolo** - Amplitude modulation
+  - **Bass Boost** - Enhanced low frequencies
+  - **Echo** - Echo/delay effect
+  - **Reverb** - Basic reverb effect
+
+- `/reverb [room]` - Advanced reverb with room acoustics:
+  - **Small Room** - Intimate setting (30ms, 50% decay)
+  - **Medium Room** - Standard room (50ms, 60% decay)
+  - **Large Room** - Spacious environment (75ms, 70% decay)
+  - **Concert Hall** - Professional venue (100ms, 80% decay)
+  - **Auditorium** - Large auditorium (150ms, 75% decay)
+  - **Stadium** - Massive stadium (250ms, 85% decay)
+  - **Cathedral** - Grand cathedral (300ms, 90% decay)
+  - **Church** - Church acoustics (200ms, 80% decay)
+  - **Cave** - Natural cave reverb (400ms, 90% decay)
+  - **Garage** - Garage-like space (40ms, 60% decay)
+  - **Theater** - Theater acoustics (125ms, 70% decay)
+
+> **Pro Tip:** Combine multiple filters for unique sound experiences! Each reverb room has different characteristics for size, decay, and wet level.
 
 <!-- CONTRIBUTING -->
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Development Setup
+1. **Fork the Project**
+2. **Clone your fork**
+   ```bash
+   git clone https://github.com/yourusername/Beat-Music.git
+   cd Beat-Music
+   ```
+3. **Set up development environment**
+   ```bash
+   # Install dependencies
+   ./gradlew build
+   
+   # Create your .env file
+   cp Example.env .env
+   # Add your development bot token
+   ```
+4. **Create your Feature Branch**
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+5. **Make your changes and test thoroughly**
+6. **Commit your Changes**
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+7. **Push to the Branch**
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+8. **Open a Pull Request**
+
+### Code Quality Standards
+- Follow Kotlin coding conventions
+- Write meaningful commit messages
+- Test all audio filter changes thoroughly
+- Update documentation for new features
+- Ensure all existing tests pass
+
+### Reporting Issues
+- Use the issue tracker for bugs and feature requests
+- Provide detailed reproduction steps
+- Include system information and logs when relevant
 
 <!-- LICENSE -->
 ## LICENSE
-Important!
-by downloading the following program you agree to the following LICENSE in the LICENSE file.
+This project is licensed under the GNU General Public License v3.0. By downloading and using this software, you agree to comply with the terms specified in the [LICENSE](LICENSE) file.
+
+**Important:** This is free and open-source software. See the LICENSE file for full terms and conditions.
 
 <!-- CONTACT -->
 ## Contact
 
-[Rohan Kumar](https://github.com/rohank05) - rohan.shuvam@gmail.com<br>
+**Developer:** [Rohan Kumar](https://github.com/rohank05)  
+**Email:** rohan.shuvam@gmail.com
 
+**Support & Community:**
+- [Discord Support Server](https://discord.com/invite/a4zkCjg)
+- [GitHub Issues](https://github.com/rohank05/Beat-Music/issues)
+- [GitHub Discussions](https://github.com/rohank05/Beat-Music/discussions)
 
-<br><br>
-[Support Server](https://discord.com/invite/a4zkCjg)
+**Project Links:**
+- [GitHub Repository](https://github.com/rohank05/Beat-Music)
+- [Latest Releases](https://github.com/rohank05/Beat-Music/releases)
+- [Documentation Wiki](https://github.com/rohank05/Beat-Music/wiki)
 
-Project Link: [Beat Music](https://github.com/OpenianDevelopement/Beat-Music)
+---
+
+<p align="center">
+  <a href="https://github.com/rohank05/Beat-Music">
+    <img src="https://img.shields.io/github/stars/rohank05/Beat-Music?style=social" alt="GitHub stars">
+  </a>
+  <a href="https://github.com/rohank05/Beat-Music/fork">
+    <img src="https://img.shields.io/github/forks/rohank05/Beat-Music?style=social" alt="GitHub forks">
+  </a>
+  <a href="https://github.com/rohank05/Beat-Music/issues">
+    <img src="https://img.shields.io/github/issues/rohank05/Beat-Music" alt="GitHub issues">
+  </a>
+  <a href="https://github.com/rohank05/Beat-Music/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/rohank05/Beat-Music" alt="License">
+  </a>
+</p>
+
+<p align="center">
+  Made with ❤️ for the Discord community
+</p>
 
 

@@ -2,6 +2,7 @@ package com.therohankumar
 
 import com.therohankumar.modules.AudioPlayerManager
 import com.therohankumar.modules.EmbedUtils
+import com.therohankumar.modules.filters.reverb.ReverbPcmAudioFilter
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
@@ -9,7 +10,13 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 class AudioFilterSelectListeners: ListenerAdapter() {
     override fun onStringSelectInteraction(event: StringSelectInteractionEvent) {
-        if(event.componentId != "filter_select") return
+        when (event.componentId) {
+            "filter_select" -> handleFilterSelection(event)
+            "reverb_room_select" -> handleReverbRoomSelection(event)
+        }
+    }
+    
+    private fun handleFilterSelection(event: StringSelectInteractionEvent) {
         val guildId = event.guild?.idLong ?: return
         if(!AudioPlayerManager.musicManagerExist(guildId)) return
         val musicManager = AudioPlayerManager.getMusicManager(guildId)
@@ -29,9 +36,60 @@ class AudioFilterSelectListeners: ListenerAdapter() {
         val updatedEmbed = EmbedUtils.createAudioFilterEmbed(activeFilters, true, "These Filters has been enbaled", event.user)
         event.editMessageEmbeds(updatedEmbed).setComponents().queue()
     }
+    
+    private fun handleReverbRoomSelection(event: StringSelectInteractionEvent) {
+        val guildId = event.guild?.idLong ?: return
+        if(!AudioPlayerManager.musicManagerExist(guildId)) return
+        val musicManager = AudioPlayerManager.getMusicManager(guildId)
+        
+        if (event.values.isEmpty()) {
+            // No room selected, disable reverb
+            musicManager.audioFilter.updateFilter {
+                isReverb = false
+            }
+            
+            val updatedEmbed = EmbedBuilder()
+                .setTitle("🏛️ Reverb Disabled")
+                .setDescription("Reverb effect has been disabled")
+                .setColor(EmbedUtils.RED_COLOR)
+                .build()
+            event.editMessageEmbeds(updatedEmbed).setComponents().queue()
+        } else {
+            // Room selected, enable reverb with specific preset
+            val selectedRoom = event.values[0]
+            val preset = try {
+                ReverbPcmAudioFilter.RoomPreset.valueOf(selectedRoom)
+            } catch (e: IllegalArgumentException) {
+                event.reply("❌ Invalid room selection!").setEphemeral(true).queue()
+                return
+            }
+            
+            musicManager.audioFilter.updateFilter {
+                isReverb = true
+            }
+            musicManager.audioFilter.updateReverbPreset(preset)
+            
+            val roomName = preset.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
+            val updatedEmbed = EmbedBuilder()
+                .setTitle("🏛️ Reverb Applied")
+                .setDescription("Applied **$roomName** reverb effect")
+                .addField("Room Size", "${preset.roomSize}ms", true)
+                .addField("Decay", "${(preset.decay * 100).toInt()}%", true)
+                .addField("Wet Level", "${(preset.wetLevel * 100).toInt()}%", true)
+                .setColor(EmbedUtils.GREEN_COLOR)
+                .build()
+            event.editMessageEmbeds(updatedEmbed).setComponents().queue()
+        }
+    }
 
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
-        if(event.componentId != "reset_filters") return
+        when (event.componentId) {
+            "reset_filters" -> handleResetFilters(event)
+            "disable_reverb" -> handleDisableReverb(event)
+        }
+    }
+    
+    private fun handleResetFilters(event: ButtonInteractionEvent) {
         val guildId = event.guild?.idLong ?: return
         if(!AudioPlayerManager.musicManagerExist(guildId)) return
         val musicManager = AudioPlayerManager.getMusicManager(guildId)
@@ -40,6 +98,21 @@ class AudioFilterSelectListeners: ListenerAdapter() {
             .setTitle("Audio Filters")
             .setDescription("Audio Filters has been reset")
             .setColor(EmbedUtils.YELLOW_COLOR)
+            .build()
+        event.editMessageEmbeds(updatedEmbed).setComponents().queue()
+    }
+    
+    private fun handleDisableReverb(event: ButtonInteractionEvent) {
+        val guildId = event.guild?.idLong ?: return
+        if(!AudioPlayerManager.musicManagerExist(guildId)) return
+        val musicManager = AudioPlayerManager.getMusicManager(guildId)
+        musicManager.audioFilter.updateFilter {
+            isReverb = false
+        }
+        val updatedEmbed = EmbedBuilder()
+            .setTitle("🏛️ Reverb Disabled")
+            .setDescription("Reverb effect has been disabled")
+            .setColor(EmbedUtils.RED_COLOR)
             .build()
         event.editMessageEmbeds(updatedEmbed).setComponents().queue()
     }

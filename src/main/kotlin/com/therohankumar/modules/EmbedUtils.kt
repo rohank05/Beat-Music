@@ -7,6 +7,10 @@ import java.awt.Color
 
 object EmbedUtils {
     val YELLOW_COLOR = Color(255, 255, 0)
+    val GREEN_COLOR = Color(46, 204, 113)  
+    val RED_COLOR = Color(231, 76, 60)
+    val BLUE_COLOR = Color(52, 152, 219)
+    val PURPLE_COLOR = Color(155, 89, 182)
 
     fun createNowPlayingEmbed(
         trackTitle: String,
@@ -17,8 +21,8 @@ object EmbedUtils {
         requestedBy: User
     ): MessageEmbed {
         return EmbedBuilder().apply {
-            setColor(YELLOW_COLOR)
-            setTitle("Now Playing")
+            setColor(GREEN_COLOR)
+            setTitle("🎵 Now Playing")
             setDescription(buildString {
                 append("**[$trackTitle]($trackUrl)**\n")
                 append("by $author\n")
@@ -38,8 +42,8 @@ object EmbedUtils {
         requestedBy: User
     ): MessageEmbed {
         return EmbedBuilder().apply {
-            setColor(YELLOW_COLOR)
-            setTitle("Added to Queue")
+            setColor(BLUE_COLOR)
+            setTitle("➕ Added to Queue")
             setDescription(buildString {
                 append("**[$trackTitle]($trackUrl)**\n")
                 append("by $author\n")
@@ -153,7 +157,7 @@ object EmbedUtils {
         requestedBy: User? = null
     ): MessageEmbed {
         return EmbedBuilder().apply {
-            setColor(YELLOW_COLOR)
+            setColor(RED_COLOR)
             setTitle("⚠️ $title")
             setDescription(description)
             if (requestedBy != null) {
@@ -208,12 +212,29 @@ object EmbedUtils {
     }
 
     private fun getTrackThumbnail(url: String): String? {
-        // Extract video ID from YouTube URL
-        val videoId = when {
-            url.contains("youtu.be/") -> url.split("youtu.be/")[1].take(11)
-            url.contains("youtube.com/watch?v=") -> url.split("watch?v=")[1].take(11)
-            else -> return null
+        return try {
+            // Extract video ID from YouTube URL
+            val videoId = when {
+                url.contains("youtu.be/") -> {
+                    val parts = url.split("youtu.be/")
+                    if (parts.size > 1) parts[1].split("?")[0].take(11) else null
+                }
+                url.contains("youtube.com/watch?v=") -> {
+                    val parts = url.split("watch?v=")
+                    if (parts.size > 1) parts[1].split("&")[0].take(11) else null
+                }
+                url.contains("youtube.com/watch") && url.contains("v=") -> {
+                    val regex = Regex("v=([a-zA-Z0-9_-]{11})")
+                    regex.find(url)?.groupValues?.get(1)
+                }
+                else -> null
+            }
+            
+            if (videoId != null && videoId.length == 11) {
+                "https://img.youtube.com/vi/$videoId/mqdefault.jpg"
+            } else null
+        } catch (e: Exception) {
+            null
         }
-        return "https://img.youtube.com/vi/$videoId/mqdefault.jpg"
     }
 }

@@ -10,6 +10,7 @@ object CommandManager {
     private val commandList = listOf(
         Play(),
         Filter(),
+        Reverb(),
         Skip(),
         Stop(),
         Queue(),

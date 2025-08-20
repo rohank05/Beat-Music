@@ -21,7 +21,8 @@ data class FilterSettings(
     var isTremolo: Boolean = false,
     var isBassBoost: Boolean = false,
     var isEcho: Boolean = false,
-    var isReverb: Boolean = false
+    var isReverb: Boolean = false,
+    var reverbPreset: ReverbPcmAudioFilter.RoomPreset = ReverbPcmAudioFilter.RoomPreset.AUDITORIUM
 )
 
 class Filters(private val audioPlayer: AudioPlayer) {
@@ -37,6 +38,14 @@ class Filters(private val audioPlayer: AudioPlayer) {
     fun updateFilter(update: FilterSettings.() -> Unit) {
         settings.update()
         updatePlayerFilter()
+    }
+    
+    // Function to update reverb preset specifically
+    fun updateReverbPreset(preset: ReverbPcmAudioFilter.RoomPreset) {
+        settings.reverbPreset = preset
+        if (settings.isReverb) {
+            updatePlayerFilter()
+        }
     }
 
     // Reset all filters to default state
@@ -128,7 +137,7 @@ class Filters(private val audioPlayer: AudioPlayer) {
 
         if (settings.isReverb) {
             ReverbPcmAudioFilter(currentFilter, format).apply {
-                setPreset(ReverbPcmAudioFilter.RoomPreset.AUDITORIUM)
+                setPreset(settings.reverbPreset)
                 currentFilter = this
                 add(this)
             }
