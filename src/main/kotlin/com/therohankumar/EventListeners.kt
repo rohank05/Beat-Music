@@ -18,22 +18,48 @@ class EventListeners: ListenerAdapter() {
     private val logger = LoggerFactory.getLogger(EventListeners::class.java)
     private val scope = CoroutineScope(Dispatchers.Default)
     override fun onReady(event: ReadyEvent) {
-        logger.info("Bot is online")
-        event.jda.presence.setPresence(OnlineStatus.ONLINE,Activity.listening("Your Mom"))
+        logger.info("Bot is online and ready to serve music!")
+        logger.info("Connected to ${event.jda.guilds.size} guilds")
+        event.jda.presence.setPresence(OnlineStatus.ONLINE, Activity.listening("/play • Enhanced Audio Experience"))
     }
 
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
-        println(event.jda.guilds.size)
-        if(event.guild === null) return
+        logger.debug("Processing command: ${event.name} from guild: ${event.guild?.name ?: "Unknown"}")
+        
+        if (event.guild == null) {
+            logger.warn("Received command from non-guild context")
+            return
+        }
+        
         val command: ICommand? = CommandManager.getCommand(event.name)
+        if (command == null) {
+            logger.warn("Unknown command received: ${event.name}")
+            return
+        }
+        
         scope.launch {
-            command?.execute(event)
+            try {
+                command.execute(event)
+                logger.debug("Successfully executed command: ${event.name}")
+            } catch (e: Exception) {
+                logger.error("Error executing command ${event.name}: ${e.message}", e)
+                if (!event.isAcknowledged) {
+                    event.reply("❌ An error occurred while processing your command. Please try again later.")
+                        .setEphemeral(true).queue()
+                }
+            }
         }
     }
 
     override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
-        if(event.guild.selfMember.voiceState === null || event.guild.selfMember.voiceState?.channel === null) return
-        if(event.guild.selfMember.voiceState?.channel === event.channelLeft && event.guild.selfMember.voiceState!!.channel!!.members.size == 1) {
+        val voiceState = event.guild.selfMember.voiceState
+        
+        // Check if bot is in a voice channel
+        val botChannel = voiceState?.channel ?: return
+        
+        // Check if bot was left alone in the channel
+        if (botChannel == event.channelLeft && botChannel.members.size == 1) {
+            logger.info("Bot left alone in voice channel ${botChannel.name}, disconnecting...")
             event.guild.audioManager.closeAudioConnection()
             AudioPlayerManager.destroyMusicManager(event.guild.idLong)
         }

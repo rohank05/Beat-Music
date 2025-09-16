@@ -1,9 +1,5 @@
 package com.therohankumar.modules
 
-import com.github.natanbc.lavadsp.rotation.RotationPcmAudioFilter
-import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter
-import com.github.natanbc.lavadsp.tremolo.TremoloPcmAudioFilter
-import com.github.natanbc.lavadsp.vibrato.VibratoPcmAudioFilter
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter
 import com.sedmelluq.discord.lavaplayer.filter.UniversalPcmAudioFilter
@@ -12,7 +8,7 @@ import com.sedmelluq.discord.lavaplayer.format.AudioDataFormat
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.therohankumar.modules.filters.reverb.ReverbPcmAudioFilter
-import me.rohank05.echo.EchoPcmAudioFilter
+import org.slf4j.LoggerFactory
 
 data class FilterSettings(
     var isNightcore: Boolean = false,
@@ -21,10 +17,12 @@ data class FilterSettings(
     var isTremolo: Boolean = false,
     var isBassBoost: Boolean = false,
     var isEcho: Boolean = false,
-    var isReverb: Boolean = false
+    var isReverb: Boolean = false,
+    var reverbPreset: ReverbPcmAudioFilter.RoomPreset = ReverbPcmAudioFilter.RoomPreset.AUDITORIUM
 )
 
 class Filters(private val audioPlayer: AudioPlayer) {
+    private val logger = LoggerFactory.getLogger(Filters::class.java)
     private var settings = FilterSettings()
 
     // Extension property to check if any filter is enabled
@@ -37,21 +35,34 @@ class Filters(private val audioPlayer: AudioPlayer) {
     fun updateFilter(update: FilterSettings.() -> Unit) {
         settings.update()
         updatePlayerFilter()
+        logger.debug("Filter settings updated: $settings")
+    }
+    
+    // Function to update reverb preset specifically
+    fun updateReverbPreset(preset: ReverbPcmAudioFilter.RoomPreset) {
+        settings.reverbPreset = preset
+        if (settings.isReverb) {
+            updatePlayerFilter()
+        }
+        logger.debug("Reverb preset updated to: ${preset.name}")
     }
 
     // Reset all filters to default state
     fun resetFilters() {
         settings = FilterSettings()
         updatePlayerFilter()
+        logger.debug("All filters reset to default")
     }
 
     // Update the audio player's filter chain
     private fun updatePlayerFilter() {
-        if(isAnyFilterEnabled) {
+        if (isAnyFilterEnabled) {
             audioPlayer.setFilterFactory(this::buildChain)
-            return
+            logger.debug("Applied filter chain with enabled filters")
+        } else {
+            audioPlayer.setFilterFactory(null)
+            logger.debug("Disabled all filters")
         }
-        audioPlayer.setFilterFactory(null)
     }
 
     private fun buildChain(
@@ -61,44 +72,7 @@ class Filters(private val audioPlayer: AudioPlayer) {
     ): List<AudioFilter> = buildList {
         var currentFilter: FloatPcmAudioFilter = downstream
 
-        // Apply Nightcore filter
-        if (settings.isNightcore) {
-            TimescalePcmAudioFilter(currentFilter, format.channelCount, format.sampleRate).apply {
-                pitch = 1.29
-                speed = 1.29
-                currentFilter = this
-                add(this)
-            }
-        }
-
-        // Apply 8D filter
-        if (settings.isEightD) {
-            RotationPcmAudioFilter(currentFilter, format.sampleRate).apply {
-                setRotationSpeed(0.1)
-                currentFilter = this
-                add(this)
-            }
-        }
-
-        // Apply Vibrato filter
-        if (settings.isVibrato) {
-            VibratoPcmAudioFilter(currentFilter, format.channelCount, format.sampleRate).apply {
-                frequency = 4.0f
-                currentFilter = this
-                add(this)
-            }
-        }
-
-        // Apply Tremolo filter
-        if (settings.isTremolo) {
-            TremoloPcmAudioFilter(currentFilter, format.channelCount, format.sampleRate).apply {
-                frequency = 1.0f
-                depth = 0.8f
-                currentFilter = this
-                add(this)
-            }
-        }
-
+        // Apply Bass Boost filter (using standard equalizer)
         if (settings.isBassBoost) {
             val bands = FloatArray(15) { index ->
                 when (index) {
@@ -114,24 +88,24 @@ class Filters(private val audioPlayer: AudioPlayer) {
             Equalizer(format.channelCount, currentFilter, bands).apply {
                 currentFilter = this
                 add(this)
+                logger.debug("Applied bass boost filter")
             }
         }
 
-        // Apply Echo filter
-        if (settings.isEcho) {
-            EchoPcmAudioFilter(currentFilter, format.channelCount, format.sampleRate).apply {
-                setDelay(1.0)
-                setDecay(0.5f)
-                add(this)
-            }
-        }
-
+        // Apply Reverb filter (only this one is implemented)
         if (settings.isReverb) {
             ReverbPcmAudioFilter(currentFilter, format).apply {
-                setPreset(ReverbPcmAudioFilter.RoomPreset.AUDITORIUM)
+                setPreset(settings.reverbPreset)
                 currentFilter = this
                 add(this)
+                logger.debug("Applied reverb filter with preset: ${settings.reverbPreset.name}")
             }
+        }
+
+        // Note: Other filters (Nightcore, 8D, Vibrato, Tremolo, Echo) are not implemented
+        // due to missing dependencies. They would be added here when dependencies are available.
+        if (settings.isNightcore || settings.isEightD || settings.isVibrato || settings.isTremolo || settings.isEcho) {
+            logger.warn("Some filters are enabled but not implemented due to missing dependencies")
         }
     }.asReversed()
 
